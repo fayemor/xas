@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Xassida Cloud — Bibliothèque numérique</title>
+    <meta name="description"
+        content="Xassida Cloud — partage de Xassidas, livres et vidéos. Lecture intégrée et téléchargement." />
+    <meta property="og:title" content="Xassida Cloud — Bibliothèque numérique" />
+    <meta property="og:description"
+        content="Accédez aux Xassidas, livres et vidéos — lecture intégrée et téléchargement." />
+    <meta name="author" content="Mor Faye" />
+    <meta name="theme-color" content="#b45309" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <link rel="icon" href="xc.png" />
+
+    <!-- Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {sans: ['Inter', 'ui-sans-serif', 'system-ui']},
+                    colors: {primary: {600: '#ea580c'}}
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --accent: #ea580c;
+            --bg-dark-1: #020617;
+            --bg-dark-2: #071225;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --glass: rgba(255, 255, 255, 0.04);
+            --text-light: #e8eef7;
+            --text-dark: #0b1220;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            color: var(--text-light);
+            background:
+                radial-gradient(1200px 600px at 10% 10%, rgba(234, 88, 12, 0.02), transparent 10%),
+                linear-gradient(180deg, var(--bg-dark-1) 0%, var(--bg-dark-2) 100%);
+        }
+
+        /* dark golden Islamic motif */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -40;
+            pointer-events: none;
+            background-image:
+                url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><defs><pattern id='p' width='120' height='120' patternUnits='userSpaceOnUse'><path d='M60 0 L120 30 L60 60 L0 30 Z' fill='%23d4af37' fill-opacity='0.06'/><path d='M0 60 L60 90 L0 120 L-60 90 Z' fill='%23d4af37' fill-opacity='0.03'/></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");
+            background-repeat: repeat;
+            background-size: 240px 240px;
+            animation: pan 28s linear infinite;
+            mix-blend-mode: overlay;
+            opacity: 0.9;
+            filter: blur(.6px) saturate(110%);
+        }
+
+        @keyframes pan {
+            from {
+                background-position: 0 0
+            }
+
+            to {
+                background-position: 800px 400px
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            backdrop-filter: blur(8px);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.18));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04)
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        /* hero */
+        .hero-photo {
+            background-image: url('xf.jpg');
+            background-size: cover;
+            background-position: center;
+            min-height: 280px;
+            position: relative;
+            margin-top: 1.5rem;
+            /* ✅ descend légèrement le bloc (~24px) */
+            border-radius: 1rem;
+            /* pour garder la douceur */
+        }
+
+
+        /* glass cards */
+        .glass {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px
+        }
+
+        /* modal */
+        .modal-inner {
+            padding-top: 18px
+        }
+
+        /* ~5mm offset */
+        .modal-close {
+            background: transparent;
+            border: 0;
+            font-size: 20px;
+            padding: 6px 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: inherit
+        }
+
+        .modal-bottom-close {
+            position: absolute;
+            right: 14px;
+            bottom: 14px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: 0;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        .modal-bottom-close.light {
+            background: rgba(0, 0, 0, 0.08);
+            color: var(--text-dark);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* search sizing to avoid overlap */
+        #searchWrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0
+        }
+
+        #globalSearch {
+            min-width: 90px;
+            width: 220px;
+            max-width: 420px;
+            transition: width .18s ease
+        }
+
+        @media (max-width:640px) {
+            #globalSearch {
+                width: calc(100vw - 150px);
+                max-width: 260px
+            }
+        }
+
+        /* light mode */
+        .light body {
+            background: linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
+            color: var(--text-dark)
+        }
+
+        /* Text color in cards for light mode */
+        .light .glass h3,
+        .light .glass p {
+            color: #b45309 !important;
+            /* orange foncé */
+        }
+
+
+        .light .glass p {
+            color: var(--text-dark) !important;
+        }
+
+        .light .glass h3 {
+            color: #b45309 !important;
+        }
+
+
+        .light header {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.98));
+            border-bottom: 1px solid rgba(16, 24, 32, 0.05)
+        }
+
+        .light .glass {
+            background: rgba(16, 24, 32, 0.03);
+            border: 1px solid rgba(16, 24, 32, 0.04);
+            color: var(--text-dark)
+        }
+
+        .light .modal-bottom-close {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            border: 1px solid rgba(0, 0, 0, 0.06)
+        }
+
+        /* === Personnalisation du header en mode clair === */
+        .light header .text-amber-400 {
+            color: #b45309 !important;
+            /* orange foncé pour "Xassida Cloud" */
+        }
+
+        .light header .text-slate-300 {
+            color: #000000 !important;
+            /* noir pour "Bibliothèque numérique" */
+        }
+
+
+
+        .light #globalSearch {
+            color: #000000;
+            /* texte en noir */
+            background-color: #ffffff;
+            /* fond blanc */
+            border: 1px solid #b45309;
+            /* contour orange foncé */
+        }
+
+        .light #globalSearch::placeholder {
+            color: #000000;
+            /* gris moyen pour le placeholder */
+        }
+
+        .light #themeToggle,
+        .light #mobileMenuBtn {
+            background-color: #e5e7eb !important;
+            /* fond gris clair */
+            color: #000000;
+            /* icône sombre */
+        }
+
+
+        /* Animated welcome text */
+        .pulse-amber {
+            animation: pulse 3s infinite;
+            color: var(--accent)
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-6px)
+            }
+        }
+
+        /* ensure mobile menu button visible */
+        #mobileMenuBtn {
+            display: block
+        }
+
+        /* extended desktop menu */
+        @media(min-width:900px) {
+            nav.desktop-nav {
+                display: flex;
+                gap: 12px;
+                align-items: center
+            }
+
+            nav.desktop-nav .nav-btn {
+                padding: 8px 12px;
+                font-weight: 600
+            }
+        }
+
+        /* ---------- THEME: styles clairs et sombres appliqués sur <html> ---------- */
+        /* Light mode (texte orange foncé, bibliotheque en noir, search texte noir) */
+        html.light body {
+            background: linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
+            color: var(--text-dark);
+        }
+
+        html.light header .text-amber-400,
+        html.light .text-amber-400 {
+            /* titre */
+            color: #b45309 !important;
+            /* orange foncé */
+        }
+
+        html.light header .text-slate-300,
+        html.light .text-slate-300 {
+            /* sous-titre */
+            color: #000000 !important;
+        }
+
+        /* Search input in light mode */
+        html.light #globalSearch {
+            color: #000000 !important;
+            /* texte saisi en noir */
+            background-color: #ffffff !important;
+            /* fond blanc */
+            border: 1px solid #b45309 !important;
+            /* contour orange foncé */
+        }
+
+        html.light #globalSearch::placeholder {
+            color: #9ca3af !important;
+        }
+
+        /* Buttons (theme/menu) background in light mode */
+        html.light #themeToggle,
+        html.light #mobileMenuBtn {
+            background-color: #e5e7eb !important;
+            /* gris clair */
+            color: #000 !important;
+        }
+
+        /* Dark mode: force text in search to black as requested, with light input background for readability */
+        html.dark #globalSearch {
+            color: #000000 !important;
+            /* texte saisi en noir */
+            background-color: #f5f5f5 !important;
+            /* fond gris clair pour lisibilité sur sombre */
+            border: 1px solid #b45309 !important;
+        }
+
+        html.dark #globalSearch::placeholder {
+            color: #555555 !important;
+        }
+
+        /* Also ensure cards text color in light mode becomes orange-donk */
+        html.light .glass h3,
+        html.light .glass p {
+            color: #b45309 !important;
+        }
+
+        /* =============================
+   Boutons "Lire" & "Télécharger"
+   ============================= */
+
+        /* Mode clair */
+        html.light .btn-read {
+            background-color: #b45309 !important;
+            /* orange foncé */
+            color: #ffffff !important;
+            transition: background 0.2s;
+        }
+
+        html.light .btn-read:hover {
+            background-color: #92400e !important;
+        }
+
+        html.light .btn-dl {
+            background-color: #e5e7eb !important;
+            /* gris clair */
+            color: #000000 !important;
+            transition: background 0.2s;
+        }
+
+        html.light .btn-dl:hover {
+            background-color: #d1d5db !important;
+        }
+
+        /* Mode sombre */
+        html.dark .btn-read {
+            background-color: #ea580c !important;
+            /* orange vif */
+            color: #000000 !important;
+            transition: background 0.2s;
+        }
+
+        html.dark .btn-read:hover {
+            background-color: #fb923c !important;
+        }
+
+        html.dark .btn-dl {
+            background-color: #334155 !important;
+            /* gris bleu foncé */
+            color: #f8fafc !important;
+            transition: background 0.2s;
+        }
+
+        html.dark .btn-dl:hover {
+            background-color: #475569 !important;
+        }
+
+        /* === Boutons Lire et Télécharger — visibles dans les deux modes === */
+
+        /* style commun */
+        .btn-read,
+        .btn-dl {
+            border-radius: 9999px !important;
+            /* super arrondi type "pill button" */
+            font-weight: 600;
+            padding: 8px 18px;
+            transition: all 0.25s ease-in-out;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+
+        /* ----- MODE CLAIR ----- */
+        html.light .btn-read {
+            background-color: #b45309 !important;
+            /* orange foncé */
+            color: #ffffff !important;
+            border: 1px solid #92400e !important;
+        }
+
+        html.light .btn-read:hover {
+            background-color: #92400e !important;
+        }
+
+        html.light .btn-dl {
+            background-color: #e5e7eb !important;
+            /* gris clair */
+            color: #000000 !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        html.light .btn-dl:hover {
+            background-color: #d1d5db !important;
+        }
+
+        /* ----- MODE SOMBRE ----- */
+        html.dark .btn-read {
+            background-color: #ea580c !important;
+            /* orange vif */
+            color: #000000 !important;
+            border: 1px solid #fb923c !important;
+        }
+
+        html.dark .btn-read:hover {
+            background-color: #fb923c !important;
+        }
+
+        html.dark .btn-dl {
+            background-color: #1e293b !important;
+            /* gris bleu foncé */
+            color: #ffffff !important;
+            border: 1px solid #334155 !important;
+        }
+
+        html.dark .btn-dl:hover {
+            background-color: #334155 !important;
+        }
+
+        /* === Boutons Lire et Télécharger — double compatibilité === */
+
+        .btn-read,
+        .btn-dl {
+            border-radius: 6px;
+            font-weight: 600;
+            padding: 6px 14px;
+            transition: all 0.25s ease-in-out;
+        }
+
+        /* ------------------ MODE CLAIR ------------------ */
+        html.light .btn-read,
+        body:not(.dark) .btn-read {
+            background-color: #b45309 !important;
+            /* orange foncé */
+            color: #ffffff !important;
+            border: 1px solid #92400e !important;
+        }
+
+        html.light .btn-read:hover,
+        body:not(.dark) .btn-read:hover {
+            background-color: #92400e !important;
+        }
+
+        html.light .btn-dl,
+        body:not(.dark) .btn-dl {
+            background-color: #e5e7eb !important;
+            /* gris clair */
+            color: #000000 !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        html.light .btn-dl:hover,
+        body:not(.dark) .btn-dl:hover {
+            background-color: #d1d5db !important;
+        }
+
+        /* ------------------ MODE SOMBRE ------------------ */
+        html.dark .btn-read,
+        body.dark .btn-read {
+            background-color: #ea580c !important;
+            /* orange vif */
+            color: #000000 !important;
+            border: 1px solid #fb923c !important;
+        }
+
+        html.dark .btn-read:hover,
+        body.dark .btn-read:hover {
+            background-color: #fb923c !important;
+        }
+
+        html.dark .btn-dl,
+        body.dark .btn-dl {
+            background-color: #78350f !important;
+            /* gris bleu foncé */
+            color: #ffffff !important;
+            border: 1px solid #334155 !important;
+        }
+
+        html.dark .btn-dl:hover,
+        body.dark .btn-dl:hover {
+            background-color: #334155 !important;
+        }
+
+        /* === Espacement supérieur des pages de contenu === */
+        #page-xassidas,
+        #page-livres,
+        #page-videos {
+            margin-top: 2.5rem;
+            /* ≈ 40px d’espace sous le header */
+        }
+
+        @media (max-width: 640px) {
+
+            #page-xassidas,
+            #page-livres,
+            #page-videos {
+                margin-top: 1.5rem;
+                /* un peu moins sur mobile */
+            }
+        }
+
+        /* === Transition douce entre mode clair et sombre === */
+        html,
+        body,
+        header,
+        main,
+        .glass,
+        .btn-read,
+        .btn-dl {
+            transition: background-color 1s ease, color 1s ease, border-color 1s ease, box-shadow 0.8s ease;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: url('motif-islamic.png') repeat center;
+            background-size: 500px;
+            opacity: 0.04;
+            animation: shimmer 20s linear infinite;
+            z-index: -10;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 500px 500px;
+            }
+        }
+
+        @media (max-width: 640px) {
+
+            h1,
+            h2,
+            h3 {
+                line-height: 1.3;
+            }
+
+            .btn-read,
+            .btn-dl {
+                padding: 10px 16px;
+                font-size: 0.95rem;
+            }
+
+            #globalSearch {
+                font-size: 0.9rem;
+            }
+
+            .btn-read:active,
+            .btn-dl:active {
+                transform: scale(0.96);
+            }
+
+            button,
+            .nav-btn {
+                cursor: pointer;
+            }
+
+            /* Cache le bouton menu sur desktop (force Tailwind si conflit) */
+            @media (min-width: 768px) {
+                #mobileMenuBtn {
+                    display: none !important;
+                }
+            }
+
+            @media (min-width:768px) {
+                #mobileMenuBtn {
+                    display: none !important
+                }
+            }
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <img src="xc.png" alt="Logo Xassida Cloud" class="w-10 h-10 rounded-md object-cover"
+                    onerror="this.style.display='none'">
+                <div>
+                    <div class="text-lg font-extrabold text-amber-400">Xassida Cloud</div>
+                    <div class="text-xs text-slate-300">Bibliothèque numérique</div>
+                </div>
+            </div>
+
+            <!-- Navigation principale (visible seulement sur desktop) -->
+            <nav class="ml-6 hidden md:flex gap-2 items-center">
+                <button data-nav="home" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Accueil</button>
+                <button data-nav="xassidas"
+                    class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Xassidas</button>
+                <button data-nav="livres" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Livres</button>
+                <button data-nav="videos" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Vidéos</button>
+            </nav>
+
+            <!-- Espace flexible -->
+            <div class="flex-1"></div>
+
+            <!-- Barre de recherche -->
+            <div id="searchWrap" class="flex items-center gap-2">
+                <input id="globalSearch" type="search" placeholder="Rechercher titre, auteur, tag..."
+                    class="rounded-md px-3 py-2 bg-white/5 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 w-40 sm:w-56 md:w-64 lg:w-72" />
+                <button id="btnSearch"
+                    class="px-3 py-2 rounded-md bg-amber-600 text-black text-sm font-semibold">Rechercher</button>
+            </div>
+
+            <!-- Bouton menu mobile -->
+            <button id="mobileMenuBtn" class="p-2 rounded-md bg-gray-200 dark:bg-gray-700 block md:hidden"
+                aria-label="Menu">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <!-- Bouton clair / sombre -->
+            <button id="themeToggle" aria-label="Basculer thème"
+                class="ml-2 p-2 rounded-md bg-gray-200 dark:bg-gray-700">
+                <svg id="themeIcon" class="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+            </button>
+
+        </div>
+
+        <!-- Navigation mobile déroulante -->
+        <div id="mobileNav" class="md:hidden border-t border-white/5 bg-black/60 hidden">
+            <div class="px-4 py-3 flex flex-col gap-2">
+                <button data-nav="home" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Accueil</button>
+                <button data-nav="xassidas"
+                    class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Xassidas</button>
+                <button data-nav="livres" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Livres</button>
+                <button data-nav="videos" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Vidéos</button>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="max-w-6xl mx-auto px-4 pt-6">
+        <!-- HOME -->
+        <section id="page-home" class="page py-8">
+            <div class="rounded-2xl overflow-hidden hero-photo glass relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                <div class="relative z-10 p-8 md:p-12 text-center">
+                    <h1 class="text-3xl md:text-4xl font-extrabold pulse-amber">Bienvenue sur Xassida Cloud</h1>
+                    <p class="mt-3 text-slate-200 max-w-2xl mx-auto">Bibliothèque communautaire de Xassidas, livres et
+                        vidéos — lecture intégrée et téléchargement.</p>
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                        <button data-nav="xassidas"
+                            class="px-4 py-2 rounded-md bg-amber-600 text-black font-bold">Explorer Xassidas</button>
+                        <button data-nav="livres"
+                            class="px-4 py-2 rounded-md border border-amber-600 text-amber-200">Explorer Livres</button>
+                        <button data-nav="videos" class="px-4 py-2 rounded-md bg-white/5 text-white">Kourels &
+                            Conferences</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-xl p-4 glass">
+                    <h3 class="font-bold text-amber-300">Lecture intégrée</h3>
+                    <p class="text-sm mt-2 text-slate-300">Ouvre les PDF/Drive dans une modale pour lire sans quitter le
+                        site.</p>
+                </div>
+                <div class="rounded-xl p-4 glass">
+                    <h3 class="font-bold text-amber-300">Téléchargement</h3>
+                    <p class="text-sm mt-2 text-slate-300">Téléchargement direct dans le site (si le Drive le permet).
+                    </p>
+                </div>
+                <div class="rounded-xl p-4 glass">
+                    <h3 class="font-bold text-amber-300">Vidéos intégrées</h3>
+                    <p class="text-sm mt-2 text-slate-300">Regarde des vidéos YouTube directement dans une modale.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- XASSIDAS -->
+        <section id="page-xassidas" class="page hidden py-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Espace Xassida</h2>
+                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
+            </div>
+            <div id="gridXassida" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
+            </div>
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-slate-400" id="xassidaCount"></div>
+                <div class="flex gap-2">
+                    <button id="prevX" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
+                    <button id="nextX" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVRES -->
+        <section id="page-livres" class="page hidden py-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Espace Livres</h2>
+                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
+            </div>
+            <div id="gridLivres" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
+            </div>
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-slate-400" id="livresCount"></div>
+                <div class="flex gap-2">
+                    <button id="prevL" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
+                    <button id="nextL" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIDEOS -->
+        <section id="page-videos" class="page hidden py-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Vidéos</h2>
+                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
+            </div>
+            <div id="gridVideos" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
+            </div>
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-slate-400" id="videosCount"></div>
+                <div class="flex gap-2">
+                    <button id="prevV" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
+                    <button id="nextV" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-8 text-center text-sm text-slate-400">
+            © <span id="year"></span> Xassida Cloud — Usage éducatif • Développé par Mor Faye
+        </footer>
+    </main>
+
+    <!-- Document modal -->
+    <div id="docModal" class="fixed inset-0 z-70 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
+        <div class="relative w-[95%] max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
+            <!-- Top header with close X (replaces external window icon) -->
+            <div class="modal-inner flex items-center justify-between p-3 border-b border-slate-200/10">
+                <div>
+                    <div id="docTitle" class="font-bold text-slate-900 dark:text-slate-100"></div>
+                    <div id="docMeta" class="text-xs text-slate-500 dark:text-slate-400"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="docDownload" class="px-3 py-1 rounded-md bg-amber-600 text-black">Télécharger</button>
+                    <button id="docCloseTop" class="modal-close" aria-label="Fermer la modale">✖</button>
+                </div>
+            </div>
+            <iframe id="docFrame" class="w-full h-full border-0" title="Lecteur document"></iframe>
+            <!-- Bottom-right close -->
+            <button id="docCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
+        </div>
+    </div>
+
+    <!-- Video modal -->
+    <div id="vidModal" class="fixed inset-0 z-70 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
+        <div class="relative w-[95%] max-w-3xl bg-black rounded-xl overflow-hidden">
+            <div class="modal-inner flex items-center justify-between p-3 border-b border-slate-200/10 bg-slate-900">
+                <div>
+                    <div id="vidTitle" class="font-bold text-white"></div>
+                    <div id="vidMeta" class="text-xs text-slate-400"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="vidDownload" class="px-3 py-1 rounded-md bg-amber-600 text-black">Télécharger</button>
+                    <button id="vidCloseTop" class="modal-close" aria-label="Fermer la modale">✖</button>
+                </div>
+            </div>
+            <div class="aspect-video bg-black">
+                <iframe id="vidFrame" class="w-full h-full border-0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen
+                    title="Vidéo"></iframe>
+            </div>
+            <button id="vidCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
+        </div>
+    </div>
+
+    <script>
+        /* ======================
+           Data (Drive links & YouTube IDs you provided)
+           ====================== */
+        const XASSIDAS = [
+            {id: 'xb_astahfiru_ar', title: 'Astahfiroulaha bihi', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1T3PMH2RzOWQLkogJT4p9ZO6uAaNGViwB/view?usp=drive_link'},
+            {id: 'xb_jazbu_ar', title: 'Jazbul Quloob Ar', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1sd0ZrFOdPyAuVgAeUc1Dwv8Tiz-bSRjP/view?usp=drive_link'},
+            {id: 'xb_midadi_ar', title: 'Midadi', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view?usp=drive_link'},
+            {id: 'xb_mafatikhouljinan_ar', title: 'Mafatikhoul Jinane Ar', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1pd1Qrl9g7pH_4I_84kPON4edwVThHKqh/view?usp=drive_link'},
+            {id: 'xb_nafih_ar', title: 'Mawahibou Nafih Ar', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/19984yj2zb-g28XkEZu2pQh0-1er6sp8U/view?usp=drive_link'},
+            {id: 'xb_wadjah-wadj_ar', title: 'Wadjahtou Wajhiyajah', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1zXlKZl5HcS58m-0iud5mG-XJ18xiJNTt/view?usp=drive_link'},
+            {id: 'xb_adjaraboussama_ar', title: 'Adjabani Raboussama', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1gS3U8Di-6nP7WfmhxbMnlu1V9b3v2z8_/view?usp=drive_link'},
+            {id: 'xb_sindidi_ar', title: 'Sindidi Ar', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1l6H_cgOu0Oh-BYTkZegcz405AliTxMug/view?usp=drive_link'},
+            {id: 'xb_yaqinikitab_ar', title: 'Yaqiini Kitaabulaahi', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1b9KTwspNf05pgNMPL5K5tKhRFQOHUlsD/view?usp=drive_link'},
+            {id: 'xb_touhfatu_ar', title: 'Touhfatoul Mutadarihiin', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1ybWMyBFfHk3w5y3CcOnh6PHkLc3-a0pz/view?usp=drive_link'},
+            {id: 'xb_fawzeyni_ar', title: 'Matlaboul Fawzeyni Ar', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1FVAdIRGOzOZW7xipZstsgCGFqwE5I1wl/view?usp=drive_link'}
+        ];
+
+        const LIVRES = [
+            {id: 'xm_arxuraan', title: 'Alxuraan en Wolof', author: 'ALLAH (SWT)', driveLink: 'https://drive.google.com/file/d/1V8S93byxBrqcwSBpo41emWUP3MNY78Da/view?usp=drive_link'},
+            {id: 'xm_ibra', title: 'Cheikh Ibra Fall', author: 'Sheikh Alassane Sène', driveLink: 'https://drive.google.com/file/d/1DMmk5X6Gpyf8QiwP20bO5IBqrtDG8cBC/view?usp=drive_link'},
+            {id: 'xm_ayni', title: 'Xuratul Ayni', author: 'Serigne Chouhaybou MBACKE', driveLink: 'https://drive.google.com/file/d/1E4Orppn8JrgdTAzS3FvTx9QUjkoEHrz6/view?usp=drive_link'},
+            {id: 'xm_maaxuuz', title: 'Wird Maaxuuz', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1OvKKR2YWqXs86k4NwSD7cPQ8vSL81Z2_/view?usp=drive_link'},
+            {id: 'xm_smj', title: 'Kàdduy Seriñ Mbay Jaxate (v2)', author: 'Serigne Mbaye Diakhate', driveLink: 'https://drive.google.com/file/d/1BFYghrqN4dx65RBFT9bF1Bc0LG_XjkMv/view?usp=drive_link'},
+            {id: 'xm_massalik_fr', title: 'Massalikul Jinaan', author: 'Cheikh Ahmadou Bamba', driveLink: 'https://drive.google.com/file/d/1wj8e41e7VHQRLgS0F0Z67aN2SGhmOugs/view?usp=drive_link'},
+            {id: 'juzz1', title: 'Juzz 01', author: 'Serigne Samba Diagne', driveLink: 'https://drive.google.com/file/d/180LvqEAYkNaLPIOj87yaNwd92v0B_D_z/view?usp=drive_link'},
+            {id: 'xm_irwaa-u', title: 'Irwaa-u-nadiim', author: 'Sëriñ Muhammadu Lamin Jóob', driveLink: 'https://drive.google.com/file/d/1Gn2VBV60DnWsN2BhHT0AzKTu1a7pzP4G/view?usp=drive_link'}
+        ];
+
+        const VIDEOS = [
+            {id: 'v1', title: 'La sagesse dans la tradition', speaker: 'Prof. Karim', tag: 'Conférence', youtubeId: 'dQw4w9WgXcQ'},
+            {id: 'v2', title: 'Récitation Tafsir', speaker: 'Qari Salim', tag: 'Vidéos', youtubeId: '3JZ_D3ELwOQ'},
+            {id: 'v3', title: 'Conférence: Transmission', speaker: 'Dr. A. Ndiaye', tag: 'Conférence', youtubeId: 'PLACEHOLDER_YT_1'},
+            {id: 'v4', title: 'Cours: Introduction', speaker: 'Serigne X', tag: 'Vidéos', youtubeId: 'PLACEHOLDER_YT_2'}
+        ];
+
+        /* ======================
+           Internal registry (no visible IDs)
+           ====================== */
+        const uidMap = new Map();
+        function registerItem(item) {
+            const key = Math.random().toString(36).slice(2, 10);
+            uidMap.set(key, item);
+            return key;
+        }
+
+        /* helpers */
+        function esc(s = '') {return String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));}
+        function toPreview(url) {if (!url) return ''; return url.replace(/\/view.*$/, '/preview');}
+        function driveIdFromUrl(url) {const m = url.match(/\/file\/d\/([^\/]+)\//); return m ? m[1] : null;}
+
+        /* pagination */
+        let xPage = 1, lPage = 1, vPage = 1; const pageSize = 9;
+
+        /* DOM refs */
+        const pages = {
+            home: document.getElementById('page-home'),
+            xassidas: document.getElementById('page-xassidas'),
+            livres: document.getElementById('page-livres'),
+            videos: document.getElementById('page-videos')
+        };
+        function showPage(name) {
+            Object.values(pages).forEach(p => p.classList.add('hidden'));
+            if (pages[name]) pages[name].classList.remove('hidden');
+            history.replaceState(null, '', '#' + name);
+        }
+
+        /* nav */
+        document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', e => {
+            showPage(btn.dataset.nav);
+            document.getElementById('mobileNav').classList.add('hidden');
+        }));
+
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileNav').classList.toggle('hidden');
+        });
+
+        /* theme */
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        function applyTheme(t) {
+            if (t === 'light') {htmlEl.classList.add('light'); localStorage.setItem('theme', 'light');}
+            else {htmlEl.classList.remove('light'); localStorage.setItem('theme', 'dark');}
+        }
+        applyTheme(localStorage.getItem('theme') || 'dark');
+        themeToggle.addEventListener('click', () => applyTheme(htmlEl.classList.contains('light') ? 'dark' : 'light'));
+
+        /* Build card */
+        function buildCard(item, kind) {
+            const key = registerItem({...item, kind});
+            const tag = kind === 'x' ? 'Xassida' : (kind === 'l' ? 'Livre' : 'Vidéos');
+            const initials = (item.title || '').split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase();
+            const el = document.createElement('article');
+            el.className = 'rounded-xl p-4 glass hover:shadow-lg transition flex flex-col h-full';
+            el.innerHTML = `
+    <div class="h-32 rounded-md bg-gradient-to-br from-black/20 to-white/5 flex items-center justify-center text-3xl font-extrabold text-amber-400">${esc(initials)}</div>
+    <h3 class="mt-3 font-semibold text-lg">${esc(item.title)}</h3>
+    <p class="text-sm text-slate-300 mt-1">${esc(item.author || item.speaker || '')}</p>
+    <div class="mt-3 flex items-center justify-between gap-2">
+      <div class="text-xs px-2 py-1 rounded-full bg-amber-600 text-black">${esc(tag)}</div>
+      <div class="flex gap-2">
+        ${kind !== 'v' ? `<button class="btn-read px-3 py-1 rounded-md btn-amber" data-uid="${key}">Lire</button>
+                        <button class="btn-dl px-3 py-1 rounded-md bg-white/6" data-uid="${key}">Télécharger</button>` :
+                    `<button class="btn-watch px-3 py-1 rounded-md btn-amber" data-uid="${key}">Regarder</button>`}
+      </div>
+    </div>`;
+            return el;
+        }
+
+        /* render lists */
+        const gridX = document.getElementById('gridXassida'), gridL = document.getElementById('gridLivres'), gridV = document.getElementById('gridVideos');
+        const countX = document.getElementById('xassidaCount'), countL = document.getElementById('livresCount'), countV = document.getElementById('videosCount');
+
+        function renderList(items, container, page, kind, countEl) {
+            const total = items.length;
+            const start = (page - 1) * pageSize;
+            const slice = items.slice(start, start + pageSize);
+            container.innerHTML = '';
+            if (slice.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-slate-300 bg-white/6 rounded-md">Aucun résultat</div>`;
+            } else {
+                slice.forEach(it => container.appendChild(buildCard(it, kind)));
+            }
+            if (countEl) countEl.textContent = `${Math.min(total, start + 1)}–${Math.min(total, start + pageSize)} sur ${total}`;
+        }
+
+        renderList(XASSIDAS, gridX, xPage, 'x', countX);
+        renderList(LIVRES, gridL, lPage, 'l', countL);
+        renderList(VIDEOS, gridV, vPage, 'v', countV);
+
+        /* pagination buttons */
+        document.getElementById('prevX').addEventListener('click', () => {if (xPage > 1) xPage--; renderList(XASSIDAS, gridX, xPage, 'x', countX);});
+        document.getElementById('nextX').addEventListener('click', () => {xPage++; renderList(XASSIDAS, gridX, xPage, 'x', countX);});
+        document.getElementById('prevL').addEventListener('click', () => {if (lPage > 1) lPage--; renderList(LIVRES, gridL, lPage, 'l', countL);});
+        document.getElementById('nextL').addEventListener('click', () => {lPage++; renderList(LIVRES, gridL, lPage, 'l', countL);});
+        document.getElementById('prevV').addEventListener('click', () => {if (vPage > 1) vPage--; renderList(VIDEOS, gridV, vPage, 'v', countV);});
+        document.getElementById('nextV').addEventListener('click', () => {vPage++; renderList(VIDEOS, gridV, vPage, 'v', countV);});
+
+        /* search */
+        const globalSearch = document.getElementById('globalSearch'), btnSearch = document.getElementById('btnSearch');
+        function doGlobalSearch() {
+            const q = (globalSearch.value || '').trim().toLowerCase();
+            if (!q) {
+                xPage = lPage = vPage = 1;
+                renderList(XASSIDAS, gridX, xPage, 'x', countX);
+                renderList(LIVRES, gridL, lPage, 'l', countL);
+                renderList(VIDEOS, gridV, vPage, 'v', countV);
+                showPage('home');
+                return;
+            }
+            const rx = XASSIDAS.filter(i => (i.title + ' ' + (i.author || '')).toLowerCase().includes(q));
+            const rl = LIVRES.filter(i => (i.title + ' ' + (i.author || '')).toLowerCase().includes(q));
+            const rv = VIDEOS.filter(i => (i.title + ' ' + (i.speaker || '') + ' ' + (i.tag || '')).toLowerCase().includes(q));
+            renderList(rx, gridX, 1, 'x', countX);
+            renderList(rl, gridL, 1, 'l', countL);
+            renderList(rv, gridV, 1, 'v', countV);
+            showPage('xassidas');
+        }
+        btnSearch.addEventListener('click', doGlobalSearch);
+        globalSearch.addEventListener('keydown', (e) => {if (e.key === 'Enter') doGlobalSearch(); if (e.key === 'Escape') {globalSearch.value = ''; doGlobalSearch();} });
+
+        /* delegated click handling */
+        document.body.addEventListener('click', async (e) => {
+            const uid = e.target?.dataset?.uid;
+            if (uid) {
+                const item = uidMap.get(uid);
+                if (!item) {alert('Ressource introuvable.'); return;}
+
+                if (e.target.classList.contains('btn-read')) {
+                    openDocModal(item);
+                    return;
+                }
+                if (e.target.classList.contains('btn-dl')) {
+                    await telechargerItem(item);
+                    return;
+                }
+                if (e.target.classList.contains('btn-watch')) {
+                    openVidModal(item);
+                    return;
+                }
+            }
+        });
+
+        /* Modal logic */
+        const docModal = document.getElementById('docModal'), docFrame = document.getElementById('docFrame');
+        const docTitle = document.getElementById('docTitle'), docMeta = document.getElementById('docMeta');
+        const docCloseTop = document.getElementById('docCloseTop'), docCloseBottom = document.getElementById('docCloseBottom'), docDownload = document.getElementById('docDownload');
+
+        function openDocModal(item) {
+            docModal._current = item;
+            docTitle.textContent = item.title || '';
+            docMeta.textContent = item.author || '';
+            docFrame.src = toPreview(item.driveLink || '');
+            docModal.classList.remove('hidden'); docModal.classList.add('flex');
+            document.documentElement.style.overflow = 'hidden';
+            // make sure close buttons visible (style)
+            setTimeout(() => {docCloseBottom.classList.toggle('light', document.documentElement.classList.contains('light'))}, 60);
+        }
+        function closeDocModal() {
+            docModal.classList.add('hidden'); docModal.classList.remove('flex');
+            docFrame.src = 'about:blank';
+            docModal._current = null;
+            document.documentElement.style.overflow = '';
+        }
+        docCloseTop.addEventListener('click', closeDocModal);
+        docCloseBottom.addEventListener('click', closeDocModal);
+        docDownload.addEventListener('click', async () => {
+            if (!docModal._current) return alert('Aucune ressource sélectionnée.');
+            await telechargerItem(docModal._current);
+        });
+        docModal.addEventListener('click', (e) => {if (e.target === docModal) closeDocModal();});
+
+        /* Video modal */
+        const vidModal = document.getElementById('vidModal'), vidFrame = document.getElementById('vidFrame');
+        const vidTitle = document.getElementById('vidTitle'), vidMeta = document.getElementById('vidMeta');
+        const vidCloseTop = document.getElementById('vidCloseTop'), vidCloseBottom = document.getElementById('vidCloseBottom'), vidDownload = document.getElementById('vidDownload');
+
+        function openVidModal(item) {
+            vidModal._current = item;
+            vidTitle.textContent = item.title || '';
+            vidMeta.textContent = item.speaker || '';
+            vidFrame.src = `https://www.youtube.com/embed/${encodeURIComponent(item.youtubeId)}?autoplay=1&rel=0`;
+            vidModal.classList.remove('hidden'); vidModal.classList.add('flex');
+            document.documentElement.style.overflow = 'hidden';
+            setTimeout(() => {vidCloseBottom.classList.toggle('light', document.documentElement.classList.contains('light'))}, 60);
+        }
+        function closeVidModal() {
+            vidModal.classList.add('hidden'); vidModal.classList.remove('flex');
+            vidFrame.src = '';
+            vidModal._current = null;
+            document.documentElement.style.overflow = '';
+        }
+        vidCloseTop.addEventListener('click', closeVidModal);
+        vidCloseBottom.addEventListener('click', closeVidModal);
+        vidDownload.addEventListener('click', async () => {
+            if (!vidModal._current) return alert('Aucune vidéo sélectionnée.');
+            const id = vidModal._current.youtubeId;
+            if (!id) return alert('Aucun ID vidéo disponible.');
+            try {await navigator.clipboard.writeText('https://www.youtube.com/watch?v=' + id); alert('Lien YouTube copié (utilise un outil tiers pour télécharger).');}
+            catch (e) {alert('Voici le lien: https://www.youtube.com/watch?v=' + id);}
+        });
+        vidModal.addEventListener('click', (e) => {if (e.target === vidModal) closeVidModal();});
+
+        /* helper to find item by preview (if needed) */
+        function findItemByDrivePreview(previewUrl) {
+            return [...XASSIDAS, ...LIVRES].find(v => toPreview(v.driveLink || '') === previewUrl) || null;
+        }
+
+        /* download function: fetch -> blob (stays within site), fallback copies link and shows preview */
+        async function telechargerItem(item) {
+            if (!item) {
+                alert('Ressource introuvable.');
+                return;
+            }
+
+            const link = item.driveLink || '';
+            if (!link) {
+                alert('Aucun lien de téléchargement.');
+                return;
+            }
+
+            // On tente d'extraire l'ID du lien Google Drive
+            const idMatch = link.match(/\/file\/d\/([^\/]+)\//);
+            let directLink = link;
+            if (idMatch && idMatch[1]) {
+                directLink = `https://drive.google.com/uc?export=download&id=${idMatch[1]}`;
+            }
+
+            try {
+                // Ouvre le lien dans un nouvel onglet (évite CORS)
+                window.open(directLink, "_blank", "noopener");
+            } catch (err) {
+                console.error("Erreur d'ouverture du lien :", err);
+                alert("Impossible d'ouvrir le lien. Copié dans le presse-papiers.");
+                try {
+                    await navigator.clipboard.writeText(link);
+                } catch (e) {
+                    console.error("Impossible de copier :", e);
+                }
+            }
+        }
+
+
+        /* ESC closes modals */
+        document.addEventListener('keydown', (e) => {if (e.key === 'Escape') {closeDocModal(); closeVidModal();} });
+
+        /* delegated clicks for cards: we registered items earlier via buildCard */
+        document.body.addEventListener('click', (e) => {
+            // the delegated handlers above already handle data-uid clicks
+        });
+
+        /* Intersection observer nice reveal */
+        const io = new IntersectionObserver(entries => entries.forEach(en => {if (en.isIntersecting) en.target.classList.add('animate-fadeIn');}), {threshold: 0.12});
+        setTimeout(() => document.querySelectorAll('.rounded-xl').forEach(el => io.observe(el)), 300);
+
+        /* hide mobile nav when clicking outside */
+        document.addEventListener('click', (e) => {
+            const m = document.getElementById('mobileNav');
+            if (!m) return;
+            if (!m.classList.contains('hidden') && !e.target.closest('#mobileNav') && !e.target.closest('#mobileMenuBtn')) m.classList.add('hidden');
+        });
+
+        /* year */
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        /* initial page */
+        const initial = location.hash.replace('#', '') || 'home';
+        if (['home', 'xassidas', 'livres', 'videos'].includes(initial)) showPage(initial); else showPage('home');
+
+    </script>
+</body>
+
+</html>
